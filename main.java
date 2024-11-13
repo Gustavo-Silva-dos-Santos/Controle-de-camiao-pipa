@@ -1,51 +1,21 @@
+package com.example;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.List;
 
-class PipaIrregular {
-    private String cliente;
-    private int dia;
-    private int mes;
-    private int ano;
-    private boolean temFoto;
-    private String situacaoAgua;
-    private String rua;
-    private int numero;
-    private String bairro;
+public class Main extends JFrame {
+    private PipaIrregularDao pipaIrregularDao = new PipaIrregularDao();
 
-    public PipaIrregular(String cliente, int dia, int mes, int ano, boolean temFoto, String situacaoAgua, String rua, int numero, String bairro) {
-        this.cliente = cliente;
-        this.dia = dia;
-        this.mes = mes;
-        this.ano = ano;
-        this.temFoto = temFoto;
-        this.situacaoAgua = situacaoAgua;
-        this.rua = rua;
-        this.numero = numero;
-        this.bairro = bairro;
-    }
-
-    @Override
-    public String toString() {
-        return "Cliente: " + cliente + ", Data: " + dia + "/" + mes + "/" + ano +
-               ", Tem foto: " + (temFoto ? "Sim" : "Não") +
-               ", Situação da água: " + situacaoAgua +
-               ", Endereço: " + rua + ", Nº: " + numero + ", Bairro: " + bairro;
-    }
-}
-
-public class SistemaCadastroPipasIrregularesGUI extends JFrame {
-    private ArrayList<PipaIrregular> pipas = new ArrayList<>();
-   
     // Componentes da interface gráfica
     private JTextField nomeClienteField, diaField, mesField, anoField, ruaField, numeroField, bairroField;
     private JCheckBox temFotoCheck;
     private JTextArea situacaoAguaArea;
     private JTextArea listagemPipasArea;
 
-    public SistemaCadastroPipasIrregularesGUI() {
+    public Main() {
         super("Sistema de Cadastro de Pipas Irregulares");
         setLayout(new BorderLayout());
 
@@ -90,8 +60,17 @@ public class SistemaCadastroPipasIrregularesGUI extends JFrame {
         bairroField = new JTextField(20);
         painelCadastro.add(bairroField);
 
+        // Painel para os botões
+        JPanel painelBotoes = new JPanel();
+        painelBotoes.setLayout(new FlowLayout(FlowLayout.CENTER)); // Alinha os botões no centro
+
         JButton cadastrarButton = new JButton("Cadastrar");
-        painelCadastro.add(cadastrarButton);
+        cadastrarButton.setPreferredSize(new Dimension(120, 40)); // Define o tamanho do botão "Cadastrar"
+        painelBotoes.add(cadastrarButton); // Adiciona o botão "Cadastrar"
+
+        JButton listarButton = new JButton("Listar Pipas");
+        listarButton.setPreferredSize(new Dimension(120, 40)); // Define o tamanho do botão "Listar Pipas"
+        painelBotoes.add(listarButton); // Adiciona o botão "Listar Pipas"
 
         // Painel de listagem
         JPanel painelListagem = new JPanel(new BorderLayout());
@@ -101,12 +80,10 @@ public class SistemaCadastroPipasIrregularesGUI extends JFrame {
         listagemPipasArea.setEditable(false);
         painelListagem.add(new JScrollPane(listagemPipasArea), BorderLayout.CENTER);
 
-        JButton listarButton = new JButton("Listar Pipas");
-        painelListagem.add(listarButton, BorderLayout.SOUTH);
-
-        // Adiciona os dois painéis principais ao frame
+        // Adiciona os painéis principais ao frame
         add(painelCadastro, BorderLayout.NORTH);
         add(painelListagem, BorderLayout.CENTER);
+        add(painelBotoes, BorderLayout.SOUTH); // Adiciona o painel de botões ao sul do frame
 
         // Ação para o botão de cadastrar
         cadastrarButton.addActionListener(new ActionListener() {
@@ -144,7 +121,7 @@ public class SistemaCadastroPipasIrregularesGUI extends JFrame {
         String bairro = bairroField.getText();
 
         PipaIrregular pipa = new PipaIrregular(cliente, dia, mes, ano, temFoto, situacaoAgua, rua, numero, bairro);
-        pipas.add(pipa);
+        pipaIrregularDao.cadastrarPipa(pipa);
 
         // Limpa os campos após o cadastro
         nomeClienteField.setText("");
@@ -162,6 +139,7 @@ public class SistemaCadastroPipasIrregularesGUI extends JFrame {
 
     // Método para listar todas as pipas cadastradas
     private void listarPipas() {
+        List<PipaIrregular> pipas = pipaIrregularDao.listarPipas();
         if (pipas.isEmpty()) {
             listagemPipasArea.setText("Nenhuma pipa cadastrada.");
         } else {
@@ -174,11 +152,6 @@ public class SistemaCadastroPipasIrregularesGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new SistemaCadastroPipasIrregularesGUI();
-            }
-        });
+        new Main();
     }
 }
